@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python generate_report.py)",
-      "Bash(python fix_turkish.py)"
-    ]
-  }
-}
