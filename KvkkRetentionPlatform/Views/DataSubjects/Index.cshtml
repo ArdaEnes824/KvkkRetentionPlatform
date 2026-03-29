@@ -1,0 +1,126 @@
+@model List<KvkkRetentionPlatform.Controllers.DataSubjectListViewModel>
+
+@{
+    ViewData["Title"] = "Kayıtlı Kullanıcılar";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Kayıtlı Kullanıcılar (Data Subjects)</h1>
+    <a asp-action="Create" class="btn btn-primary shadow-sm"><i class="fa-solid fa-user-plus"></i> Yeni Kayıt</a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 fw-bold text-primary">Kullanıcı Listesi</h6>
+        <div class="dropdown no-arrow">
+            <a class="dropdown-toggle btn btn-sm btn-outline-secondary" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-filter fa-sm fa-fw text-gray-400"></i> Sırala / Filtrele
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                <div class="dropdown-header">Sıralama Ölçütü:</div>
+                <a class="dropdown-item @(ViewData["CurrentSort"]?.ToString() == "name_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_asc">A-Z Sırala</a>
+                <a class="dropdown-item @(ViewData["CurrentSort"]?.ToString() == "name_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="name_desc">Z-A Sırala</a>
+                <a class="dropdown-item @(string.IsNullOrEmpty(ViewData["CurrentSort"]?.ToString()) || ViewData["CurrentSort"]?.ToString() == "date_desc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="date_desc">En Yeniler (Varsayılan)</a>
+                <a class="dropdown-item @(ViewData["CurrentSort"]?.ToString() == "date_asc" ? "active" : "")" asp-action="Index" asp-route-sortOrder="date_asc">En Eskiler</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover w-100 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>E-Posta</th>
+                        <th>Katılma Tarihi</th>
+                        <th>TC Kimlik No (Maskeli)</th>
+                        <th>Telefon (Maskeli)</th>
+                        <th>İş Başvuruları</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.FullName</td>
+                                <td>@item.Email</td>
+                                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    @if(!string.IsNullOrEmpty(item.MaskedTckn))
+                                    {
+                                        <code class="text-dark bg-light px-2 py-1 rounded border">@item.MaskedTckn</code>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">- Yok -</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if(!string.IsNullOrEmpty(item.MaskedPhone))
+                                    {
+                                        <code class="text-dark bg-light px-2 py-1 rounded border">@item.MaskedPhone</code>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">- Yok -</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if(item.Applications != null && item.Applications.Any())
+                                    {
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-briefcase me-1"></i> @item.Applications.Count Başvuru
+                                            </button>
+                                            <ul class="dropdown-menu p-3 shadow" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                                                @foreach(var app in item.Applications)
+                                                {
+                                                    <li class="border-bottom pb-2 mb-2" style="white-space: normal;">
+                                                        <strong class="d-block text-truncate" style="max-width: 260px;" title="@app.JobTitle">@app.JobTitle</strong>
+                                                        <small class="text-muted d-block">
+                                                            <i class="bi bi-calendar3"></i> @app.ApplicationDate.ToString("dd MMM yyyy, HH:mm")
+                                                        </small>
+                                                        @if(app.Status == "Bekleniyor")
+                                                        {
+                                                            <span class="badge bg-warning text-dark mt-1">@app.Status</span>
+                                                        }
+                                                        else if(app.Status == "İptal Edildi")
+                                                        {
+                                                            <span class="badge bg-secondary mt-1">@app.Status</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-primary mt-1">@app.Status</span>
+                                                        }
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">- Yok -</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-controller="DataSubjects" asp-action="ExportUserData" asp-route-email="@item.Email" class="btn btn-sm btn-outline-success" title="JSON İndir">
+                                        <i class="fa-solid fa-download"></i> İndir
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Sistemde herhangi bir kullanıcı bulunmamaktadır.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+@model KvkkRetentionPlatform.Models.Entities.DataSubject
+
+@{
+    ViewData["Title"] = "Yeni İlgili Kişi Ekle";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Yeni İlgili Kişi Ekle</h1>
+</div>
+
+<div class="card shadow mb-4 border-primary">
+    <div class="card-header py-3 bg-primary text-white">
+        <h6 class="m-0 fw-bold"><i class="fa-solid fa-user-plus"></i> İlgili Kişi (Data Subject) Bilgileri</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-bold">Ad:</label>
+                    <input asp-for="FirstName" class="form-control" required placeholder="Kullanıcı adını giriniz..." />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-bold">Soyad:</label>
+                    <input asp-for="LastName" class="form-control" required placeholder="Kullanıcı soyadını giriniz..." />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="Email" class="form-label fw-bold">E-Posta Adresi:</label>
+                    <input asp-for="Email" type="email" class="form-control" required placeholder="E-posta giriniz..." />
+                </div>
+                <div class="col-md-4">
+                    <label for="tckn" class="form-label fw-bold">TC Kimlik No (TCKN):</label>
+                    <input type="text" id="tckn" name="tckn" class="form-control" required placeholder="11 haneli TCKN..." maxlength="11" />
+                </div>
+                <div class="col-md-4">
+                    <label for="phoneNumber" class="form-label fw-bold">Telefon Numarası:</label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="Örn: 5551234567" maxlength="15" />
+                </div>
+            </div>
+            
+            <hr class="mt-4 mb-4" />
+            
+            <div class="d-flex justify-content-end">
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary me-2">İptal</a>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>

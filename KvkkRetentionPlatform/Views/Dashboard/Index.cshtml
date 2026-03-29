@@ -1,0 +1,249 @@
+@model KvkkRetentionPlatform.Controllers.DashboardViewModel
+@using KvkkRetentionPlatform.Helpers
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+<!-- Right to be Forgotten (Unutulma Hakkı) -->
+<div class="card shadow mb-4 border-danger">
+    <div class="card-header py-3 bg-danger text-white">
+        <h6 class="m-0 fw-bold"><i class="fa-solid fa-skull-crossbones"></i> Acil Unutulma Hakkı (Right to be Forgotten)</h6>
+    </div>
+    <div class="card-body bg-light">
+        <form asp-action="ForceForgetSubject" method="post" class="row g-3 align-items-center" onsubmit="return confirm('DİKKAT! Bu işlem geri alınamaz. Kullanıcının tüm verileri anonimleştirilecek. Emin misiniz?');">
+            <div class="col-auto">
+                <label for="email" class="col-form-label fw-bold">E-Posta Adresi:</label>
+            </div>
+            <div class="col-md-4">
+                <input type="email" id="email" name="email" class="form-control border-danger" placeholder="Kullanıcı e-posta adresini girin..." required>
+            </div>
+            <div class="col-auto">
+                <label for="reason" class="col-form-label fw-bold">Silinme Nedeni:</label>
+            </div>
+            <div class="col-md-3">
+                <select id="reason" name="reason" class="form-select border-danger" required>
+                    <option value="">Seçiniz...</option>
+                    <option value="Kullanıcı İsteği (Unutulma Hakkı)">Kullanıcı İsteği (Unutulma Hakkı)</option>
+                    <option value="Yasal Süre Dolumu">Yasal Süre Dolumu</option>
+                    <option value="Hatalı Veri Girişi">Hatalı Veri Girişi</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-danger fw-bold shadow-sm">
+                    <i class="fa-solid fa-bomb"></i> Yok Et
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Stats Indicators Row -->
+<div class="row mb-4">
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card border-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                            Toplam Aktif Veri
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalActiveData</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fa-solid fa-database fa-2x text-primary" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card border-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-danger text-uppercase mb-1">
+                            Silinmeyi Bekleyen Riskli Veri
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.DataPendingDeletion</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fa-solid fa-triangle-exclamation fa-2x text-danger" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Pie Chart -->
+    <div class="col-xl-4 col-lg-5 mb-4">
+        <div class="card shadow h-100 border-info">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 fw-bold text-info"><i class="fa-solid fa-chart-pie"></i> Veri Dağılımı</h6>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bar Chart -->
+    <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card shadow h-100 border-warning">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 fw-bold text-warning"><i class="fa-solid fa-chart-bar"></i> Aylık Silinme Beklentisi</h6>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="expirationBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Grid & Action Row -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white">
+        <h6 class="m-0 fw-bold text-primary">Süresi Dolan Veriler Listesi</h6>
+        <form asp-action="RunRetentionJob" method="post" class="m-0">
+            <button type="submit" class="btn btn-warning shadow-sm fw-bold">
+                <i class="fa-solid fa-truck-fast"></i> Geciken Verileri İmha Et
+            </button>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover w-100 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Müşteri Adı</th>
+                        <th>Kategori</th>
+                        <th>Hassas Veri (Maskeli)</th>
+                        <th>Son K. Tarihi</th>
+                        <th>Gecikme</th>
+                        <th>Gerekli Aksiyon</th>
+                        <th>Dışa Aktar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(Model.ExpiredDataList != null && Model.ExpiredDataList.Any())
+                    {
+                        foreach (var item in Model.ExpiredDataList)
+                        {
+                            <tr>
+                                <td>@item.SubjectName</td>
+                                <td><span class="badge bg-secondary">@item.CategoryName</span></td>
+                                <td><code class="text-dark">@DataMaskingHelper.MaskData(item.DataValue)</code></td>
+                                <td>@(item.ExpirationDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-danger">@item.DaysOverdue Gün</span>
+                                </td>
+                                <td>
+                                    @if(item.RequiredAction == "DELETE")
+                                    {
+                                        <span class="badge bg-danger"><i class="fa-solid fa-trash"></i> SİL</span>
+                                    }
+                                    else if(item.RequiredAction == "ANONYMIZE")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fa-solid fa-mask"></i> ANONİMLEŞTİR</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.RequiredAction</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-controller="DataSubjects" asp-action="ExportUserData" asp-route-email="@item.Email" class="btn btn-sm btn-outline-success fw-bold">
+                                        <i class="fa-solid fa-download"></i> İndir
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Süresi dolmuş veri bulunmamaktadır. Harika!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Data from ViewModel
+            const categoryLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryLabels));
+            const categoryCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryCounts));
+            
+            const expLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ExpirationLabels));
+            const expCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ExpirationCounts));
+
+            // Pie Chart Configuration
+            const ctxPie = document.getElementById("categoryPieChart").getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryCounts,
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Bar Chart Configuration
+            const ctxBar = document.getElementById("expirationBarChart").getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: expLabels.length > 0 ? expLabels : ['Veri Yok'],
+                    datasets: [{
+                        label: 'Silinmesi Beklenen Veri Sayısı',
+                        backgroundColor: '#f6c23e',
+                        hoverBackgroundColor: '#dda20a',
+                        borderColor: '#f6c23e',
+                        data: expCounts.length > 0 ? expCounts : [0],
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+}

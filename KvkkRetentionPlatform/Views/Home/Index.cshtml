@@ -1,0 +1,72 @@
+@model IEnumerable<KvkkRetentionPlatform.Models.Entities.JobPosting>
+@{
+    ViewData["Title"] = "Kariyer Portalı";
+}
+
+<div class="container-fluid bg-light pt-5 pb-5 mb-5 border-bottom">
+    <div class="row justify-content-center text-center">
+        <div class="col-md-8">
+            <h1 class="display-4 fw-bold text-primary mb-4">Geleceğine Yön Ver</h1>
+            <p class="lead text-muted mb-5">
+                Modern ve güvenli altyapımızla kariyer yolculuğunuzda yanınızdayız. Kişisel verilerinizin 
+                KVKK standartlarında korunduğu şeffaf işe alım sürecimizle hemen tanışın.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/Auth/Register" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-sm">
+                    <i class="bi bi-person-plus-fill me-2"></i> Hemen Başvur (Kayıt Ol)
+                </a>
+                <a href="/Auth/Login" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill shadow-sm bg-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Aday Girişi
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Açık Pozisyonlar</h2>
+        <p class="text-muted">Size en uygun rolü bulun ve ekibimize katılın</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        @if(Model != null)
+        {
+            foreach (var job in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm custom-hover-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-briefcase" viewBox="0 0 16 16">
+                                        <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z"/>
+                                    </svg>
+                                </div>
+                                <h5 class="card-title fw-bold mb-0">@job.Title</h5>
+                            </div>
+                            <p class="card-text text-muted mb-4">
+                                @(job.Description.Length > 100 ? job.Description.Substring(0, 100) + "..." : job.Description)
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                <span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>@job.Department</span>
+                                <span class="badge bg-light text-dark border">Yeni İlan</span>
+                            </div>
+                            <a href="/Auth/Register" class="btn btn-outline-primary w-100 mt-auto">Başvur</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .custom-hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .custom-hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
